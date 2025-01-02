@@ -101,4 +101,9 @@ pub fn build(b: *std.Build) void {
     exe.linkLibrary(raylib_artifact);
     exe.root_module.addImport("raylib", raylib);
     exe.root_module.addImport("raygui", raygui);
+
+    const module = b.addModule("squarified", .{
+        .root_source_file = b.path("src/root.zig"),
+    });
+    defer _ = module;
 }
