@@ -8,7 +8,7 @@ zig build run
 ```
 Runs a basic Raylib demo that displays a treemap.
 
-![]("./assets/demo.png")
+![image]("assets/demo.png")
 
 ## Install as a Zig package
 ```
