@@ -42,14 +42,14 @@ pub fn Node(DataType: type) type {
     return struct {
         value: f32,
         data: DataType,
-        children: ?[]const Node(DataType) = null,
+        children: ?[]*Node(DataType) = null,
     };
 }
 
 fn NormalisedNode(DataType: type) type {
     return struct {
         value: f32,
-        node: Node(DataType),
+        node: *Node(DataType),
     };
 }
 
@@ -57,7 +57,7 @@ pub fn Result(DataType: type) type {
     return struct {
         rect: Rect,
         value: f32,
-        node: Node(DataType),
+        node: *Node(DataType),
     };
 }
 
@@ -73,7 +73,7 @@ pub fn Squarify(DataType: type) type {
             };
         }
 
-        pub fn squarify(self: Self, container: Rect, root: Node(DataType)) !?ArrayList(Result(DataType)) {
+        pub fn squarify(self: Self, container: Rect, root: *Node(DataType)) !?ArrayList(Result(DataType)) {
             const maybe_result = try self.recurse(root, container);
 
             if (maybe_result) |result| {
@@ -83,7 +83,7 @@ pub fn Squarify(DataType: type) type {
             return null;
         }
 
-        fn normalise(self: Self, children: []const Node(DataType), rect: Rect) !ArrayList(NormalisedNode(DataType)) {
+        fn normalise(self: Self, children: []*Node(DataType), rect: Rect) !ArrayList(NormalisedNode(DataType)) {
             const area = rect.area();
 
             var sum: f32 = 0;
@@ -263,7 +263,7 @@ pub fn Squarify(DataType: type) type {
             unreachable;
         }
 
-        fn recurse(self: Self, node: Node(DataType), rect: Rect) !?ArrayList(Result(DataType)) {
+        fn recurse(self: Self, node: *Node(DataType), rect: Rect) !?ArrayList(Result(DataType)) {
             const has_children = if (node.children) |children| children.len > 0 else false;
 
             if (!has_children) {

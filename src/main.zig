@@ -9,67 +9,53 @@ const Data = struct {
 
 const Squarify = squarify.Squarify(Data);
 const Node = squarify.Node(Data);
+const Tree = @import("tree.zig").Tree(Data);
 
 pub fn main() !void {
-    const file_tree = Node{
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var root = Node{
         .value = 1000,
         .data = Data{
             .name = "root",
             .color = rl.Color{ .r = 255, .g = 255, .b = 255, .a = 255 },
         },
-        .children = &.{
-            Node{
-                .value = 200,
-                .data = Data{
-                    .name = "folder1",
-                    .color = rl.Color{ .r = 128, .g = 128, .b = 255, .a = 255 },
-                },
-                .children = &.{
-                    Node{
-                        .value = 50,
-                        .data = Data{
-                            .name = "file1",
-                            .color = rl.Color{ .r = 255, .g = 128, .b = 128, .a = 255 },
-                        },
-                        .children = null,
-                    },
-                    Node{
-                        .value = 150,
-                        .data = Data{
-                            .name = "file2",
-                            .color = rl.Color{ .r = 128, .g = 255, .b = 128, .a = 255 },
-                        },
-                        .children = null,
-                    },
-                },
-            },
-            Node{
-                .value = 800,
-                .data = Data{
-                    .name = "folder2",
-                    .color = rl.Color{ .r = 200, .g = 150, .b = 100, .a = 255 },
-                },
-                .children = &.{
-                    Node{
-                        .value = 300,
-                        .data = Data{
-                            .name = "file3",
-                            .color = rl.Color{ .r = 0, .g = 255, .b = 200, .a = 255 },
-                        },
-                        .children = null,
-                    },
-                    Node{
-                        .value = 500,
-                        .data = Data{
-                            .name = "file4",
-                            .color = rl.Color{ .r = 255, .g = 255, .b = 128, .a = 255 },
-                        },
-                        .children = null,
-                    },
-                },
-            },
-        },
     };
+
+    var file_tree = Tree.init(allocator, &root);
+    defer file_tree.deinit();
+
+    const folder1 = try file_tree.addNode(&root, 200, .{
+        .name = "folder1",
+        .color = rl.Color{ .r = 128, .g = 128, .b = 255, .a = 255 },
+    });
+
+    _ = try file_tree.addNode(folder1, 50, .{
+        .name = "file1",
+        .color = rl.Color{ .r = 255, .g = 128, .b = 128, .a = 255 },
+    });
+
+    _ = try file_tree.addNode(folder1, 150, .{
+        .name = "file2",
+        .color = rl.Color{ .r = 128, .g = 255, .b = 128, .a = 255 },
+    });
+
+    const folder2 = try file_tree.addNode(&root, 800, .{
+        .name = "folder2",
+        .color = rl.Color{ .r = 200, .g = 150, .b = 100, .a = 255 },
+    });
+
+    _ = try file_tree.addNode(folder2, 300, .{
+        .name = "file3",
+        .color = rl.Color{ .r = 0, .g = 255, .b = 200, .a = 255 },
+    });
+
+    _ = try file_tree.addNode(folder2, 500, .{
+        .name = "file4",
+        .color = rl.Color{ .r = 255, .g = 255, .b = 128, .a = 255 },
+    });
 
     const container = squarify.Rect{
         .x = 0,
@@ -79,7 +65,7 @@ pub fn main() !void {
     };
 
     const sq = Squarify.init(std.heap.page_allocator);
-    const results = try sq.squarify(container, file_tree) orelse unreachable;
+    const results = try sq.squarify(container, &root) orelse unreachable;
 
     // Initialization
     //--------------------------------------------------------------------------------------
