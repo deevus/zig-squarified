@@ -38,6 +38,7 @@ pub fn Tree(DataType: type) type {
             node.* = Node(DataType){
                 .data = data,
                 .value = value,
+                .parent = parent,
             };
 
             const get_children_result = try self.child_map.getOrPut(parent);

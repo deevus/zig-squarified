@@ -43,6 +43,7 @@ pub fn Node(DataType: type) type {
         value: f32,
         data: DataType,
         children: ?[]*Node(DataType) = null,
+        parent: ?*Node(DataType) = null,
     };
 }
 
