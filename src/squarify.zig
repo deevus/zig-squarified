@@ -62,15 +62,21 @@ pub fn Result(DataType: type) type {
     };
 }
 
+pub const SquarifyOptions = struct {
+    minimum_area: ?f32 = null,
+};
+
 pub fn Squarify(DataType: type) type {
     return struct {
         const Self = @This();
 
         allocator: Allocator,
+        minimum_area: ?f32 = null,
 
-        pub fn init(allocator: Allocator) Self {
+        pub fn init(allocator: Allocator, options: SquarifyOptions) Self {
             return Self{
                 .allocator = allocator,
+                .minimum_area = options.minimum_area,
             };
         }
 
@@ -279,11 +285,19 @@ pub fn Squarify(DataType: type) type {
 
             var contained = ArrayList(Result(DataType)).init(self.allocator);
             for (squarified.items) |result| {
+                if (self.minimum_area) |min_area| {
+                    if (result.rect.area() < min_area) {
+                        continue;
+                    }
+                }
+
                 try contained.append(result);
 
                 const inner_result = try self.recurse(result.node, result.rect);
                 if (inner_result) |*inner| {
-                    try contained.appendSlice(inner.items);
+                    for (inner.items) |inner_item| {
+                        try contained.append(inner_item);
+                    }
                     inner.deinit();
                 }
             }
